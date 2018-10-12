@@ -2,9 +2,7 @@ package com.neusoft.markvalidate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.List;
-
 import com.neusipo.controller.ResultController;
 import com.neusipo.domain.Result;
 import com.neusipo.domain.SortData;
@@ -29,7 +27,7 @@ public class statistics {
 		PreparedStatement ps=null;
 		ResultSet rs=null;
 		ResultController resultController = new ResultController();
-		//查询100条检索式记录,调用接口
+		//查询100条检索式记录,调用接口,将返回排序文献集插入表 ，通过Hitnum判断结果集是否为空或大于1000或正常
 		try {
 			String sql="select * from sipo_mp_ti_mark";
 			ps= conn.prepareStatement(sql);
@@ -43,16 +41,15 @@ public class statistics {
 				//String createTime=rs.getString(6);
 				String citedAn=rs.getString(7);
 				//System.out.println(id +","+type+","+userId+","+an+","+word+","+createTime+","+citedAn);
-
 				Result result=resultController.getResult(word,an,citedAn);
 				System.out.println("result：haha"+result);
 				String  id= IDGenerator.generate();
 				String insertsql="";
                 if(result.getHitNum()==0){
-                 int hitcount= 0;
-                 int location_cited=-1;
-                 insertsql="insert into sipo_markvalidatestatistics(id,an,cited_an,word,hitcount,location_cited) values ('"+id+"','"+an+"','"+citedAn+"','"+word+"','"+hitcount+"','"+location_cited+"')";
-                 ps=conn.prepareStatement(insertsql);
+                 	int hitcount= 0;
+                 	int location_cited=-1;
+                 	insertsql="insert into sipo_markvalidatestatistics(id,an,cited_an,word,hitcount,location_cited) values ('"+id+"','"+an+"','"+citedAn+"','"+word+"','"+hitcount+"','"+location_cited+"')";
+                	 ps=conn.prepareStatement(insertsql);
 					int a=ps.executeUpdate();
                 }else if(result.getHitNum() >1000){
 					int hitcount= 1001;
@@ -76,7 +73,6 @@ public class statistics {
 					}
 				}
 			}
-			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,13 +85,9 @@ public class statistics {
 	}
 
 	/**
-	 * 批量插入数据库
+	 * main启动方法
+	 * @param args
 	 */
-	public static void batchInsert(){
-
-	}
-	
-	
 	public static void main(String[] args){
 		statistics.validate();
 	}
